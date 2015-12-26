@@ -1,0 +1,56 @@
+Count of the different transitions
+
+Subject: P03
+[3][7] 7 - transition_shuf_sit
+[6][7] 5 - transition_stand_sit
+[7][1] 8 - transition_sit_walk
+[1][1] 8 - transition_walk_walk
+[8][1] 4 - transition_lie_walk
+[6][6] 6 - transition_stand_stand
+[7][6] 4 - transition_sit_stand
+[7][3] 6 - transition_sit_shuf
+[3][8] 1 - transition_shuf_lie
+[6][17] 1 - transition_stand_knee
+[1][7] 7 - transition_walk_sit
+[1][8] 4 - transition_walk_lie
+[6][8] 2 - transition_stand_lie
+[6][3] 2 - transition_stand_shuf
+[17][6] 1 - transition_knee_stand
+[7][7] 9 - transition_sit_sit
+[8][7] 3 - transition_lie_sit
+[8][6] 3 - transition_lie_stand
+[8][12] 1 - transition_lie_jump
+[7][8] 4 - transition_sit_lie
+
+Subject: P09
+[6][7] 19 - transition_stand_sit
+[1][7] 6 - transition_walk_sit
+[1][1] 9 - transition_walk_walk
+[8][1] 4 - transition_lie_walk
+[6][6] 6 - transition_stand_stand
+[7][6] 16 - transition_sit_stand
+[7][3] 3 - transition_sit_shuf
+[3][8] 1
+[7][1] 5
+[1][8] 3
+[6][8] 3
+[7][8] 4
+[7][7] 9 - transition_sit_sit
+[8][6] 3
+[8][12] 1
+[8][7] 3
+
+
+After looking around a bit. These are the most "important" transtions:
+
+[1][1] - transition_walk_walk
+[1][7] - transition_walk_sit
+[3][7] - transition_shuf_sit
+[6][6] - transition_stand_stand
+[6][7] - transition_stand_sit
+[6][8] - transition_stand_lie
+[7][1] - transition_sit_walk
+[7][3] - transition_sit_shuf
+[7][6] - transition_sit_stand
+[7][8] - transition_sit_lie
+[8][6] - transition_lie_stand

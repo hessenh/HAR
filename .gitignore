@@ -1,0 +1,13 @@
+
+# Pandas checkpoint files
+.ipynb_checkpoints/
+
+
+# Python compiled files
+*.pyc
+
+
+# SVG
+*.svg
+
+P01/
