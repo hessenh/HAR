@@ -7,10 +7,10 @@ import tensorflow as tf
 import numpy as np
 import input_data_window_large
 import pandas as pd
-import CNN_Structure
+import time
 
 class CNN_TWO_LAYERS(object):
-  def __init__(self, data_set, config):
+  def __init__(self, config):
     self._info = "Convolutional neural network with two convolutional layers and a fully connected network"
 
     '''Config'''
@@ -18,11 +18,8 @@ class CNN_TWO_LAYERS(object):
     self._output_size = config['output_size']
     self._iteration_size = config['iteration_size']
     self._batch_size = config['batch_size']
-
+    self._model_name = config['model_name']
     self._input_size_sqrt = int(self._input_size ** 0.5)
-
-    '''Data set'''
-    self._data_set = data_set
 
     '''Default values'''
     # Conv1 
@@ -49,27 +46,27 @@ class CNN_TWO_LAYERS(object):
     self.y_ = tf.placeholder("float", shape=[None, self._output_size])
 
     '''First convolutional layer'''
-    self.W_conv1 = self.weight_variable([5, 5, 1, 32], 'W_conv1')
-    self.b_conv1 = self.bias_variable([32], 'b_conv1')
+    self.W_conv1 = self.weight_variable([5, 5, 1, 32], self._model_name + "W_conv1")
+    self.b_conv1 = self.bias_variable([32],self._model_name + 'b_conv1')
     self.x_image = tf.reshape(self.x, [-1, self._input_size_sqrt, self._input_size_sqrt,1])
     self.h_conv1 = tf.nn.relu(self.conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_pool1 = self.max_pool_2x2(self.h_conv1)
 
     '''Second convolutional layer'''
-    self.W_conv2 = self.weight_variable([5, 5, 32, 64], 'W_conv2')
-    self.b_conv2 = self.bias_variable([64], 'b_conv2')
+    self.W_conv2 = self.weight_variable([5, 5, 32, 64], self._model_name + 'W_conv2')
+    self.b_conv2 = self.bias_variable([64], self._model_name +'b_conv2')
     self.h_conv2 = tf.nn.relu(self.conv2d(self.h_pool1, self.W_conv2) + self.b_conv2)
     self.h_pool2 = self.max_pool_2x2(self.h_conv2)
 
     '''Densly conected layer'''
-    self.W_fc1 = self.weight_variable([self._weight_neural_input1, self._weight_neural1], 'W_fc1')
-    self.b_fc1 = self.bias_variable([self._bias_neural1], 'b_fc1')
+    self.W_fc1 = self.weight_variable([self._weight_neural_input1, self._weight_neural1],self._model_name + 'W_fc1')
+    self.b_fc1 = self.bias_variable([self._bias_neural1], self._model_name +'b_fc1')
     self.h_pool2_flat = tf.reshape(self.h_pool2, [-1, self._weight_neural_input1])
     self.h_fc1 = tf.nn.relu(tf.matmul(self.h_pool2_flat, self.W_fc1) + self.b_fc1)
     self.keep_prob = tf.placeholder("float")
     self.h_fc1_drop = tf.nn.dropout(self.h_fc1, self.keep_prob)
-    self.W_fc2 = self.weight_variable([self._weight_neural_input2, self._output_size], 'W_fc2')
-    self.b_fc2 = self.bias_variable([self._output_size], 'b_fc2')
+    self.W_fc2 = self.weight_variable([self._weight_neural_input2, self._output_size],self._model_name + 'W_fc2')
+    self.b_fc2 = self.bias_variable([self._output_size],self._model_name + 'b_fc2')
 
     self.y_conv = tf.nn.softmax(tf.matmul(self.h_fc1_drop, self.W_fc2) + self.b_fc2)
 
@@ -96,10 +93,21 @@ class CNN_TWO_LAYERS(object):
                         strides=[1, 2, 2, 1], padding='SAME')
 
 
+  def set_data_set(self, data_set):
+    self._data_set = data_set
+
   def load_model(self, model):
     self.sess = tf.Session()
-    saver = tf.train.Saver()
-    saver.restore(self.sess, model)
+    #saver = tf.train.Saver()
+    #saver.restore(self.sess, model)
+    
+    # Get last name. Path could be modles/test, so splitting on "/" and retreiving "test"
+    model_name = model.split('/')
+    model_name = model_name[-1]
+
+    all_vars = tf.all_variables()
+    model_vars = [k for k in all_vars if k.name.startswith(model_name)]
+    tf.train.Saver(model_vars).restore(self.sess, model)
 
   def save_model(self, model):
     saver = tf.train.Saver()
@@ -113,18 +121,17 @@ class CNN_TWO_LAYERS(object):
   def data_set(self):
     return self._data_set
 
-  def test_network(self, index):
-    batch = self._data_set.test.next_batch(index)
-    print 'Actual',np.argmax(batch[1][0])+1
-    ''' Predict and print the label'''
-    prediction = self.sess.run(self.y_conv, feed_dict={self.x: batch[0],self.keep_prob:1.0})
-    print 'Prediction',np.argmax(prediction[0])+1
-    #print prediction[0][0]
-    '''Print the wrong predictions'''
-    #if np.argmax(batch[1][0]) != np.argmax(prediction[0]):
-    #  print np.argmax(batch[1][0])+1, np.argmax(prediction[0])+1
+  def test_network(self):
+    return self.sess.run(self.accuracy,feed_dict={
+      self.x: self._data_set.test.data, self.y_: self._data_set.test.labels, self.keep_prob: 1.0})
   
-    return np.argmax(prediction[0])+1
+   # return actual, prediction
+
+  def run_network(self, data):
+    ''' Predict single data'''
+    prediction = self.sess.run(self.y_conv, feed_dict={self.x: data[0],self.keep_prob:1.0})
+    prediction = np.argmax(prediction[0])+1
+    return prediction
 
   def train_network(self):
     '''Creating model'''
@@ -132,11 +139,7 @@ class CNN_TWO_LAYERS(object):
     self.sess.run(self.init_op)
     for i in range(self._iteration_size):
       batch = self._data_set.train.next_batch(self._batch_size)
-      #self.train_step.run(session=self.sess,feed_dict={self.x: batch[0], self.y_: batch[1], self.keep_prob: 0.5})
       self.sess.run(self.train_step, feed_dict={self.x: batch[0], self.y_: batch[1], self.keep_prob: 0.5})
 
     print(self.sess.run(self.accuracy,feed_dict={
       self.x: self._data_set.test.data, self.y_: self._data_set.test.labels, self.keep_prob: 1.0}))
-
-
-

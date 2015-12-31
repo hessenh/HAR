@@ -3,7 +3,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 import input_data_window_large
 
 class Simple_network(object):
-	def __init__(self, data_set, output_size):
+	def __init__(self, data_set, output_size, model):
 		super(Simple_network, self).__init__()
 	    
 	    # Setting the data set
@@ -11,8 +11,8 @@ class Simple_network(object):
 
 	    # Input, bias and weights
 		self.x = tf.placeholder(tf.float32, [None, 900])
-		self.W = tf.Variable(tf.zeros([900, output_size]), name = "W")
-		self.b = tf.Variable(tf.zeros([output_size]), name = "b")
+		self.W = tf.Variable(tf.zeros([900, output_size]), name = model + 'W')
+		self.b = tf.Variable(tf.zeros([output_size]), name = model + 'b')
 	    
 		self.y = tf.nn.softmax(tf.matmul(self.x, self.W) + self.b)
 
@@ -28,13 +28,17 @@ class Simple_network(object):
 
 	def save_variables(self, model):
 		saver = tf.train.Saver()
+		
+
+		#save_path = saver.save(model_vars, model)
 		save_path = saver.save(self.sess, model)
 		print("Model saved in file: %s" % save_path)
 
 	def load_model(self, model):
 		self.sess = tf.Session()
-		saver = tf.train.Saver()
-		saver.restore(self.sess, model)
+		all_vars = tf.all_variables()
+		model_vars = [k for k in all_vars if k.name.startswith(model)]
+		tf.train.Saver(model_vars).restore(self.sess, model)
 
 	def train_network(self):
 		self.sess = tf.Session()
@@ -57,11 +61,11 @@ data_set_1 = input_data_window_large.read_data_sets(subject_set, number_of_label
 
 #data_set_1 = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-nn = Simple_network(data_set_1,2)
+nn = Simple_network(data_set_1,2,'model_1')
 #nn.train_network()
 #nn.test_network()
-#nn.save_variables("model_1.ckpt")
-nn.load_model('model_1.ckpt')
+#nn.save_variables("model_1")
+nn.load_model('model_1')
 nn.test_network()
 
 
@@ -69,9 +73,9 @@ convertion_2 = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10, 11:11, 12:12
 number_label_2 = len(set(convertion_2.values()))
 data_set_2 = input_data_window_large.read_data_sets(subject_set, number_label_2, convertion_2, None)
 
-nn2 = Simple_network(data_set_2, 17)
+nn2 = Simple_network(data_set_2, 17, 'model_2')
 #nn2.train_network()
 #nn2.test_network()
-#nn2.save_variables("model_2.ckpt")
-nn2.load_model('model_2.ckpt')
+#nn2.save_variables("model_2")
+nn2.load_model('model_2')
 nn2.test_network()
