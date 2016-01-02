@@ -35,6 +35,6 @@ class CNN_STATIC_VARS(object):
 
 	''' Subject set '''
 	def get_subject_set(self):
-		TRAIN_SUBJECTS = ["P03","P04","P06","P07","P08","P09","P10","P14","P15","P16","P17","P18","P19","P20","P21"]
+		TRAIN_SUBJECTS = ["P03"]#,"P04","P06","P07","P08","P09","P10","P14","P15","P16","P17","P18","P19","P20","P21"]
 		TEST_SUBJECTS = ["P11"]#,"P04","P06","P07","P08","P09","P10","P14","P15","P16","P17","P18","P19","P20","P21"]
 		return [TRAIN_SUBJECTS, TEST_SUBJECTS]

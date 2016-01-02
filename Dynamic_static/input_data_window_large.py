@@ -13,8 +13,8 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 import pandas as pd
 import numpy as np
 
-def extract_merged_axes(subject):
-  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/1.5/ORIGINAL/'
+def extract_merged_axes(subject, window):
+  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/'+window+'/ORIGINAL/'
   files =   [
   'Axivity_CHEST_Back_X.csv', 'Axivity_THIGH_Left_Y.csv', 
   'Axivity_CHEST_Back_Y.csv', 'Axivity_THIGH_Left_Z.csv', 
@@ -29,20 +29,20 @@ def extract_merged_axes(subject):
   df = pd.concat([df_0, df_1, df_2, df_3, df_4, df_5],axis=1)
   return df.as_matrix(columns=None)
 
-def extract_data(subjects):
+def extract_data(subjects, window):
   print('Extracting data from', subjects)
 
-  train_data = extract_merged_axes(subjects[0])
+  train_data = extract_merged_axes(subjects[0], window)
 
   for i in range(1,len(subjects)):
-    subject_data = extract_merged_axes(subjects[i])
+    subject_data = extract_merged_axes(subjects[i], window)
 
     train_data = np.concatenate((train_data,subject_data ), axis=0)
 
   return train_data
 
-def extract_merged_labels(subject, output_size, change_labels):
-  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/1.5/ORIGINAL/Usability_LAB_All_L.csv'
+def extract_merged_labels(subject, output_size, change_labels, window):
+  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/'+window+'/ORIGINAL/Usability_LAB_All_L.csv'
   
 
   df = pd.read_csv(filepath, header=None, sep='\,',engine='python')
@@ -65,20 +65,20 @@ def extract_merged_labels(subject, output_size, change_labels):
   return s.values
 
 
-def extract_labels(subjects, output_size, change_labels):
+def extract_labels(subjects, output_size, change_labels, window):
   print('Extracting label from', subjects)
-  train_label = extract_merged_labels(subjects[0], output_size, change_labels)
+  train_label = extract_merged_labels(subjects[0], output_size, change_labels, window)
 
   for i in range(1,len(subjects)):
-    subject_label = extract_merged_labels(subjects[i], output_size, change_labels)
+    subject_label = extract_merged_labels(subjects[i], output_size, change_labels, window)
 
     train_label = np.concatenate((train_label,subject_label ), axis=0)
 
   return train_label
 
 
-def extract_merged_labels_and_data(subject, output_size, remove_activities, convert_activties):
-  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/1.5/ORIGINAL/'
+def extract_merged_labels_and_data(subject, output_size, remove_activities, convert_activties, window):
+  filepath = '../../Prosjektoppgave/Notebook/data/'+subject+'/DATA_WINDOW/'+window+'/ORIGINAL/'
   files =   [
   'Axivity_CHEST_Back_X.csv', 'Axivity_THIGH_Left_Y.csv', 
   'Axivity_CHEST_Back_Y.csv', 'Axivity_THIGH_Left_Z.csv', 
@@ -115,13 +115,13 @@ def extract_merged_labels_and_data(subject, output_size, remove_activities, conv
 
   return df_data.as_matrix(columns=None), df_labels.values
 
-def extract_labels_and_data(subjects, output_size, remove_activities, convert_activties):
+def extract_labels_and_data(subjects, output_size, remove_activities, convert_activties, window):
   print('Extracting label and data set from', subjects)
-  data, labels = extract_merged_labels_and_data(subjects[0], output_size, remove_activities, convert_activties)
+  data, labels = extract_merged_labels_and_data(subjects[0], output_size, remove_activities, convert_activties, window)
 
   # Iterate over all subjects
   for i in range(1,len(subjects)):
-    sub_data, sub_labels = extract_merged_labels_and_data(subjects[i], output_size, remove_activities, convert_activties)
+    sub_data, sub_labels = extract_merged_labels_and_data(subjects[i], output_size, remove_activities, convert_activties, window)
 
     # Append data and labels
     data = np.concatenate((data,sub_data ), axis=0)
@@ -190,7 +190,7 @@ class DataSet(object):
 
  
 
-def read_data_sets(subjects_set, output_size, change_labels, load_model):
+def read_data_sets(subjects_set, output_size, change_labels, load_model, window):
   training_subjects = subjects_set[0]
   test_subjects = subjects_set[1]
   
@@ -201,20 +201,20 @@ def read_data_sets(subjects_set, output_size, change_labels, load_model):
   # If the model is for testing
   if load_model:
     # Testing data and labels
-    test_data = extract_data(test_subjects)
-    test_labels = extract_labels(test_subjects, output_size, change_labels)
+    test_data = extract_data(test_subjects, window)
+    test_labels = extract_labels(test_subjects, output_size, change_labels, window)
 
     # Define testing data sets
     data_sets.test = DataSet(test_data, test_labels)
 
   else:
      # Training data and labels
-    train_data = extract_data(training_subjects)
-    train_labels = extract_labels(training_subjects, output_size, change_labels)
+    train_data = extract_data(training_subjects, window)
+    train_labels = extract_labels(training_subjects, output_size, change_labels, window)
 
     # Testing data and labels
-    test_data = extract_data(test_subjects)
-    test_labels = extract_labels(test_subjects, output_size, change_labels)
+    test_data = extract_data(test_subjects,window)
+    test_labels = extract_labels(test_subjects, output_size, change_labels, window)
 
     # Define training and testing data sets
     data_sets.train = DataSet(train_data, train_labels)
@@ -223,7 +223,7 @@ def read_data_sets(subjects_set, output_size, change_labels, load_model):
   return data_sets
 
 
-def read_data_sets_without_activity(subjects_set, output_size, remove_activities, load_model, convert_activties):
+def read_data_sets_without_activity(subjects_set, output_size, remove_activities, load_model, convert_activties, window):
   training_subjects = subjects_set[0]
   test_subjects = subjects_set[1]
   
@@ -234,17 +234,17 @@ def read_data_sets_without_activity(subjects_set, output_size, remove_activities
   # If the model is for testing
   if load_model:
     # Testing data and labels
-    test_data, test_labels = extract_labels_and_data(test_subjects, output_size, remove_activities, convert_activties)
+    test_data, test_labels = extract_labels_and_data(test_subjects, output_size, remove_activities, convert_activties, window)
 
     # Define testing data sets
     data_sets.test = DataSet(test_data, test_labels)
 
   else:
      # Training data and labels
-    train_data, train_labels = extract_labels_and_data(training_subjects, output_size, remove_activities, convert_activties)
+    train_data, train_labels = extract_labels_and_data(training_subjects, output_size, remove_activities, convert_activties, window)
 
     # Testing data and labels
-    test_data, test_labels = extract_labels_and_data(test_subjects, output_size, remove_activities, convert_activties)
+    test_data, test_labels = extract_labels_and_data(test_subjects, output_size, remove_activities, convert_activties, window)
 
     # Define training and testing data sets
     data_sets.train = DataSet(train_data, train_labels)

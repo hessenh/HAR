@@ -49,4 +49,4 @@ class CNN_TEST(object):
          print np.argmax(data[1])+1, self.cnn.run_network(data)
       
 
-cnn_h = CNN_TEST('dynamic', 2000, True)
+cnn_h = CNN_TEST('sd', 2000, True)
