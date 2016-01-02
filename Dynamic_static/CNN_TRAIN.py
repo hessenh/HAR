@@ -38,11 +38,11 @@ class CNN_TRAIN(object):
          self.config = self.VARS.get_config(900, len(keep_activities), iterations, 100, network_type)
          self.data_set = input_data_window_large.read_data_sets_without_activity(subject_set, len(keep_activities), remove_activities, None, keep_activities, window)
       
-      if network_type == 'smaller':
-         self.config = self.VARS.get_config(600, 2, iterations, 100, network_type)
-         convertion = self.VARS.CONVERTION_STATIC_DYNAMIC
-         print 'Creating data set'
-         self.data_set = input_data_window_large.read_data_sets(subject_set, self.VARS.len_convertion_list(convertion), convertion, None, window)
+      if network_type == 'shuf_stand':
+         remove_activities = self.VARS.CONVERTION_SHUF_STAND_INVERSE
+         keep_activities = self.VARS.CONVERTION_SHUF_STAND
+         self.config = self.VARS.get_config(900, len(keep_activities), iterations, 100, network_type)
+         self.data_set = input_data_window_large.read_data_sets_without_activity(subject_set, len(keep_activities), remove_activities, None, keep_activities, window)
       
 
       self.cnn = CNN.CNN_TWO_LAYERS(self.config)
@@ -51,4 +51,4 @@ class CNN_TRAIN(object):
       self.cnn.save_model('models/' + network_type)
 
 
-cnn_h = CNN_TRAIN('static', 900, '1.5')
+cnn_h = CNN_TRAIN('shuf_stand', 500, '1.5')

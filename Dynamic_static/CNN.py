@@ -98,9 +98,6 @@ class CNN_TWO_LAYERS(object):
 
   def load_model(self, model):
     self.sess = tf.Session()
-    #saver = tf.train.Saver()
-    #saver.restore(self.sess, model)
-    
     # Get last name. Path could be modles/test, so splitting on "/" and retreiving "test"
     model_name = model.split('/')
     model_name = model_name[-1]
@@ -121,18 +118,23 @@ class CNN_TWO_LAYERS(object):
   def data_set(self):
     return self._data_set
 
+  ''' Test network with test data set, returning accuracy '''
   def test_network(self):
     return self.sess.run(self.accuracy,feed_dict={
       self.x: self._data_set.test.data, self.y_: self._data_set.test.labels, self.keep_prob: 1.0})
-  
-   # return actual, prediction
 
+  ''' Return predicted value for a given data instance '''
   def run_network(self, data):
     ''' Predict single data'''
     prediction = self.sess.run(self.y_conv, feed_dict={self.x: data[0],self.keep_prob:1.0})
     prediction = np.argmax(prediction[0])+1
     return prediction
 
+  def run_network_return_probability(self, data):
+    prediction = self.sess.run(self.y_conv, feed_dict={self.x: data[0],self.keep_prob:1.0})
+    return prediction
+
+  ''' Train network '''
   def train_network(self):
     '''Creating model'''
     self.sess = tf.Session()

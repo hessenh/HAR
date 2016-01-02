@@ -92,6 +92,57 @@ class CNN_H(object):
 			return actuals, predictions
 
 
+	''' Probability classifiers '''
+	def classify_instance_probability(self, index):
+		''' Test classifiers on one data index, returns the actual and probability prediction '''
+
+		''' ORIGINAL '''
+		data = self.data_set_ORIGINAL.test.next_data_label(index)
+		actual = data[1]
+		original =  np.argmax(actual) + 1
+		''' Convert actual to sd format'''
+		actual_sd = np.zeros(2)
+		convert =  self.VARS.CONVERTION_STATIC_DYNAMIC.get(original)
+		actual_sd[convert-1] = 1
+
+		''' STATIC DYNAMIC PREDICTION'''
+		prediction_sd = self.cnn_sd.run_network_return_probability(data)
+		''' DYNAMIC PREDICTION'''
+		prediction_dynamic = self.cnn_dynamic.run_network_return_probability(data)
+		''' STATIC PREDICTION'''
+		prediction_static = self.cnn_static.run_network_return_probability(data)
+
+		return original, prediction_sd, actual_sd, prediction_dynamic, prediction_static
+
+	def run_network_probability(self, save=None):
+		size = len(self.data_set_ORIGINAL.test.labels)
+		originals = np.zeros(size)
+
+		predictions_sd = np.zeros((size,2))
+		actuals_sd = np.zeros((size, 2))
+
+		predictions_dynamic = np.zeros((size,12))
+		predictions_static = np.zeros((size,5))
+
+		score = 0
+		for i in range(0, size):
+			original, prediction_sd, actual_sd, prediction_dynamic, prediction_static = self.classify_instance_probability(i)
+			originals[i] = original
+			actuals_sd[i] = actual_sd
+			predictions_sd[i] = prediction_sd
+			predictions_dynamic[i] = prediction_dynamic
+			predictions_static[i] = prediction_static
+
+		if save:
+			print 'Saving predictions and results'
+			np.savetxt('predictions/actual_sd_prob.csv', actuals_sd, delimiter=",")
+			np.savetxt('predictions/prediction_sd_prob.csv', predictions_sd, delimiter=",")
+			np.savetxt('predictions/prediction_dynamic_prob.csv', predictions_dynamic, delimiter=",")
+			np.savetxt('predictions/prediction_static_prob.csv', predictions_static, delimiter=",")
+			np.savetxt('predictions/original.csv', originals, delimiter=",")
+		else:
+			return originals,actuals_sd, predictions_sd, prediction_dynamic, predictions_static
+
 cnn_h = CNN_H('1.5')
 cnn_h.initialize_networks()
-print cnn_h.run_network(True)
+print cnn_h.run_network_probability(True)
