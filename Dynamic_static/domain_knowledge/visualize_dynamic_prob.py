@@ -28,8 +28,8 @@ predictions_static = df_prediction_static.values
 predictions_dynamic = df_prediction_dynamic.values
 
 
-start = 500
-end = 1000
+start = 0
+end = 100
 
 original = original[start:end]
 actual_sd = actual_sd[start:end]
@@ -60,9 +60,9 @@ for i in range(0,size):
 	predictions_sd[i] = predictions_sd[i][0]
 	# STATIC VS DYNAMIC
 	# If the probability for an activity is close to 50/50 between to "sure" activities, let it be the average between them
-	if i>0 and i<size-1 and predictions_sd[i][0] > 0.1 and predictions_sd[i][0] < 0.7:
-		if predictions_sd[i-1][0] > 0.8 and predictions_sd[i+1][0] > 0.8:
-			predictions_sd[i] = (predictions_sd[i-1] + predictions_sd[i+1])/2
+	#if i>0 and i<size-1 and predictions_sd[i][0] > 0.1 and predictions_sd[i][0] < 0.7:
+	#	if predictions_sd[i-1][0] > 0.8 and predictions_sd[i+1][0] > 0.8:
+	#		predictions_sd[i] = (predictions_sd[i-1] + predictions_sd[i+1])/2
 
 	predictions_static_index = np.argmax(predictions_static[i]) 
 	predictions_static_prob[i] = predictions_static[i][predictions_static_index]
@@ -77,11 +77,18 @@ for i in range(0,size):
 		predictions_final[i] = predictions_static_new[i]
 
 score = 0
+error_values = np.zeros(17)
 for i in range(0, end-start):
 	if original[i] == predictions_final[i]:
 		score +=1
 	else:
 		error[i] = predictions_final[i]
+		error_values[error[i]-1] +=1
+
+for i in range(0,len(error_values)):
+	print 'Act: ',i+1, 'Error:',error_values[i],'Count', list(original).count(i+1)
+
+
 
 print 'Total', score*1.0 / (end-start)
 
