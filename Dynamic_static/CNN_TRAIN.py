@@ -1,4 +1,4 @@
-# Hierachy of Convolutional Neural Networks
+# Train different CNN
 # 
 # ==============================================================================
 
