@@ -1,2 +1,2 @@
-model_checkpoint_path: "models/shuf_stand"
-all_model_checkpoint_paths: "models/shuf_stand"
+model_checkpoint_path: "models/dynamic_900"
+all_model_checkpoint_paths: "models/dynamic_900"

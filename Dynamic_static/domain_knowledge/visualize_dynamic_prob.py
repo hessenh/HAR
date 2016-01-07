@@ -28,8 +28,8 @@ predictions_static = df_prediction_static.values
 predictions_dynamic = df_prediction_dynamic.values
 
 
-start = 0
-end = 100
+start = 1000
+end = 1100
 
 original = original[start:end]
 actual_sd = actual_sd[start:end]
@@ -95,6 +95,8 @@ print 'Total', score*1.0 / (end-start)
 predictions_sd_argmax = []
 for i in range(0,size):
 	predictions_sd_argmax.append(round(predictions_sd[i][0]))
+
+np.savetxt('prediction.csv', predictions_final, delimiter=",")
 
 plt.figure(1)
 
